@@ -1,0 +1,65 @@
+#include <stdio.h>
+
+void sjn(int n, int bt[]) {
+    int wt[n], tat[n], total_wt = 0, total_tat = 0;
+    
+    // Initialize an array to keep track of whether a process is completed
+    int completed[n];
+    for (int i = 0; i < n; i++) {
+        completed[i] = 0;
+    }
+    
+    int time = 0, min_bt_index;
+    
+    while (1) {
+        min_bt_index = -1;
+        
+        // Find the process with the smallest remaining burst time
+        for (int i = 0; i < n; i++) {
+            if (!completed[i] && (min_bt_index == -1 || bt[i] < bt[min_bt_index])) {
+                min_bt_index = i;
+            }
+        }
+        
+        if (min_bt_index == -1) {
+            break;
+        }
+        
+        completed[min_bt_index] = 1;
+        wt[min_bt_index] = time;
+        time += bt[min_bt_index];
+        
+        // Calculate turnaround time for the completed process
+        tat[min_bt_index] = time;
+        
+        total_wt += wt[min_bt_index];
+        total_tat += tat[min_bt_index];
+    }
+    
+    printf("Process\tBurst Time\tWaiting Time\tTurnaround Time\n");
+    for (int i = 0; i < n; i++) {
+        printf("%d\t%d\t\t%d\t\t%d\n", i + 1, bt[i], wt[i], tat[i]);
+    }
+    
+    float avg_wt = (float)total_wt / n;
+    float avg_tat = (float)total_tat / n;
+    printf("Average Waiting Time: %.2f\n", avg_wt);
+    printf("Average Turnaround Time: %.2f\n", avg_tat);
+}
+
+int main() {
+    int n;
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+    
+    int burst_time[n];
+    printf("Enter burst times for each process:\n");
+    for (int i = 0; i < n; i++) {
+        printf("Process %d: ", i + 1);
+        scanf("%d", &burst_time[i]);
+    }
+    
+    sjn(n, burst_time);
+    
+    return 0;
+}
