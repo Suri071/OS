@@ -1,0 +1,82 @@
+#include <stdio.h>
+#include <stdbool.h>
+
+#define NUM_FRAMES 3
+#define NUM_PAGES 10
+
+int frames[NUM_FRAMES];
+int pages[NUM_PAGES];
+int page_faults = 0;
+int access_order[NUM_PAGES];
+int next_replace = 0;
+
+void initializeFrames() {
+    for (int i = 0; i < NUM_FRAMES; i++) {
+        frames[i] = -1; // Initialize frames to -1 (indicating an empty frame)
+    }
+}
+
+bool isPageInFrames(int page) {
+    for (int i = 0; i < NUM_FRAMES; i++) {
+        if (frames[i] == page) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void updateAccessOrder(int page) {
+    for (int i = 0; i < NUM_PAGES; i++) {
+        if (access_order[i] == page) {
+            for (int j = i; j > 0; j--) {
+                access_order[j] = access_order[j - 1];
+            }
+            access_order[0] = page;
+            break;
+        }
+    }
+}
+
+void replacePage(int page) {
+    frames[next_replace] = page;
+    updateAccessOrder(page);
+    next_replace = (next_replace + 1) % NUM_FRAMES;
+}
+
+void simulateLRU() {
+    for (int i = 0; i < NUM_PAGES; i++) {
+        printf("Accessing Page %d: ", pages[i]);
+        
+        if (!isPageInFrames(pages[i])) {
+            page_faults++;
+            replacePage(pages[i]);
+        } else {
+            updateAccessOrder(pages[i]);
+        }
+        
+        for (int j = 0; j < NUM_FRAMES; j++) {
+            if (frames[j] == -1) {
+                printf("- ");
+            } else {
+                printf("%d ", frames[j]);
+            }
+        }
+        printf("\n");
+    }
+}
+
+int main() {
+    initializeFrames();
+
+    printf("Enter the sequence of page references (0-9):\n");
+    for (int i = 0; i < NUM_PAGES; i++) {
+        scanf("%d", &pages[i]);
+        access_order[i] = -1;
+    }
+
+    simulateLRU();
+
+    printf("Total Page Faults: %d\n", page_faults);
+
+    return 0;
+}
