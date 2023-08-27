@@ -1,0 +1,56 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct File {
+    char name[50];
+    int index_block;
+};
+
+struct IndexBlock {
+    int blocks[10]; // Assuming each index block can point to 10 data blocks
+};
+
+int main() {
+    struct File files[10];
+    struct IndexBlock index_blocks[10];
+    int data_blocks[100] = {0}; // Initialize all data blocks as free
+
+    for (int i = 0; i < 10; i++) {
+        printf("Enter name of File %d: ", i + 1);
+        scanf("%s", files[i].name);
+
+        printf("Enter number of blocks needed for File %d: ", i + 1);
+        int num_blocks;
+        scanf("%d", &num_blocks);
+
+        int allocated_blocks = 0;
+        for (int j = 0; j < num_blocks; j++) {
+            for (int k = 0; k < 100; k++) {
+                if (data_blocks[k] == 0) {
+                    data_blocks[k] = 1; // Mark data block as allocated
+                    index_blocks[i].blocks[j] = k; // Store data block index in index block
+                    allocated_blocks++;
+                    break;
+                }
+            }
+        }
+
+        index_blocks[i].blocks[num_blocks] = -1; // Mark end of index block
+        files[i].index_block = i; // Set index block number for the file
+
+        printf("File %s allocated %d blocks.\n", files[i].name, allocated_blocks);
+    }
+
+    printf("\nFile Allocation Table:\n");
+    for (int i = 0; i < 10; i++) {
+        printf("File: %s, Index Block: %d\n", files[i].name, files[i].index_block);
+        printf("Index Block: ");
+        for (int j = 0; index_blocks[i].blocks[j] != -1; j++) {
+            printf("%d ", index_blocks[i].blocks[j]);
+        }
+        printf("\n");
+    }
+
+    return 0;
+}
