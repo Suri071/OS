@@ -1,0 +1,56 @@
+#include <stdio.h>
+
+#define MEMORY_SIZE 100
+#define MAX_BLOCKS 10
+
+int memory[MEMORY_SIZE];
+int blocks[MAX_BLOCKS];
+int num_blocks;
+
+void initializeMemory() {
+    for (int i = 0; i < MEMORY_SIZE; i++) {
+        memory[i] = -1; // Initialize memory to -1 (indicating free space)
+    }
+}
+
+void firstFit(int process_id, int size) {
+    for (int i = 0; i < MEMORY_SIZE; i++) {
+        if (memory[i] == -1) { // Check for free space
+            int j, count = 0;
+            for (j = i; j < MEMORY_SIZE && memory[j] == -1; j++) {
+                count++;
+                if (count == size) {
+                    break;
+                }
+            }
+            if (count == size) {
+                for (int k = i; k < j; k++) {
+                    memory[k] = process_id;
+                }
+                printf("Process %d allocated at memory location %d\n", process_id, i);
+                return;
+            }
+        }
+    }
+    printf("Insufficient memory to allocate Process %d\n", process_id);
+}
+
+int main() {
+    initializeMemory();
+
+    printf("Enter number of memory blocks: ");
+    scanf("%d", &num_blocks);
+    printf("Enter size of each block:\n");
+    for (int i = 0; i < num_blocks; i++) {
+        scanf("%d", &blocks[i]);
+    }
+
+    for (int i = 0; i < num_blocks; i++) {
+        int process_id, size;
+        printf("Enter process ID and size for Block %d: ", i + 1);
+        scanf("%d %d", &process_id, &size);
+        firstFit(process_id, size);
+    }
+
+    return 0;
+}
